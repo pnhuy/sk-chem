@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "sk-chem"
+version = "0.1.0"
+description = ""
+authors = ["Huy Pham <keixi512@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "3.11.*"
+scikit-learn = "^1.5.1"
+rdkit = "^2024.3.3"
+mordred = {extras = ["full"], version = "^1.2.0"}
+pandas = "^2.2.2"
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
