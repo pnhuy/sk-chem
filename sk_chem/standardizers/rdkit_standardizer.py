@@ -5,13 +5,29 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 
 class RdkitMolStandardizer(BaseEstimator, TransformerMixin):
-    def __init__(self, input_format: str = "smiles"):
+    def __init__(self, input_format: str = "smiles", add_hs: bool = False):
         self.input_format = input_format
+        self.add_hs = add_hs
 
     @staticmethod
-    def standardize_mol(mol: Mol):
-        _ = Chem.SanitizeMol(mol)
-        mol = Chem.RemoveHs(mol)
+    def standardize_mol(mol: Mol, sanitize=True, add_hs=False):
+        if not sanitize:
+            mol.UpdatePropertyCache(strict=False)
+        Chem.SanitizeMol(mol, sanitizeOps=Chem.SANITIZE_ALL^Chem.SANITIZE_PROPERTIES)
+
+        # Iterate over atoms to find and fix valence issues
+        for atom in mol.GetAtoms(): # type: ignore
+            if atom.GetAtomicNum() == 7:  # Nitrogen
+                valence = atom.GetExplicitValence()
+                if valence > 3:
+                    atom.SetFormalCharge(valence - 3)
+                    atom.SetNumExplicitHs(0)
+        
+        try:
+            mol = Chem.AddHs(mol) if add_hs else mol
+        except Exception:
+            pass
+
         mol = rdMolStandardize.MetalDisconnector().Disconnect(mol)
         mol = rdMolStandardize.Normalize(mol)
         mol = rdMolStandardize.Reionize(mol)
@@ -20,7 +36,7 @@ class RdkitMolStandardizer(BaseEstimator, TransformerMixin):
 
     def _standardize(self, x: list[str | Mol]):
         if isinstance(x, Mol):
-            return self.standardize_mol(x)
+            return self.standardize_mol(x, add_hs=self.add_hs)
         elif isinstance(x, str) and self.input_format == "smiles":
             mol = Chem.MolFromSmiles(x)
             mol = self.standardize_mol(mol)

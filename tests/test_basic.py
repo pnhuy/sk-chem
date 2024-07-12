@@ -43,8 +43,8 @@ def test_base():
     }
 
     pipeline = Pipeline([
-        ('molecule_standardizer', RdkitMolStandardizer()),
         ('molecule_transformer', RdkitMoleculeTransformer()),
+        ('molecule_standardizer', RdkitMolStandardizer()),
         ('forcefield_optimizer', MMFF()),
         ('featurizer', RdkitFeaturizer()),
         ('imputer', SimpleImputer(strategy='constant', fill_value=-1)),
@@ -52,15 +52,15 @@ def test_base():
         ('model', RandomForestRegressor(random_state=42)),
     ])
 
-    grid_search = GridSearchCV(pipeline, params_grid, cv=5, n_jobs=-1, verbose=10)
+    grid_search = GridSearchCV(pipeline, params_grid, cv=5, n_jobs=-1, verbose=10, error_score='raise')
     grid_search = grid_search.fit(X_train, y_train)
 
     best = grid_search.best_estimator_
 
     y_pred = best.predict(X_test)
 
-    train_mse : float = mean_squared_error(y_train, best.predict(X_train))
-    test_mse : float = mean_squared_error(y_test, y_pred)
+    train_mse = mean_squared_error(y_train, best.predict(X_train))
+    test_mse = mean_squared_error(y_test, y_pred)
 
     print("Best Parameters: ", grid_search.best_params_)
     print(f"Train MSE: {train_mse}")
