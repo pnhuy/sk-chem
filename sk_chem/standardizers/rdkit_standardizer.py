@@ -13,7 +13,7 @@ class RdkitMolStandardizer(BaseEstimator, TransformerMixin):
     def standardize_mol(mol: Mol, sanitize=True, add_hs=False):
         if not sanitize:
             mol.UpdatePropertyCache(strict=False)
-        Chem.SanitizeMol(mol, sanitizeOps=Chem.SANITIZE_ALL^Chem.SANITIZE_PROPERTIES)
+        
 
         # Iterate over atoms to find and fix valence issues
         for atom in mol.GetAtoms(): # type: ignore
@@ -22,6 +22,8 @@ class RdkitMolStandardizer(BaseEstimator, TransformerMixin):
                 if valence > 3:
                     atom.SetFormalCharge(valence - 3)
                     atom.SetNumExplicitHs(0)
+
+        Chem.SanitizeMol(mol, sanitizeOps=Chem.SANITIZE_ALL^Chem.SANITIZE_PROPERTIES)
         
         try:
             mol = Chem.AddHs(mol) if add_hs else mol
