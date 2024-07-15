@@ -11,6 +11,9 @@ scikit-learn = "^1.5.1"
 rdkit = "^2024.3.3"
 mordred = {extras = ["full"], version = "^1.2.0"}
 pandas = "^2.2.2"
+torch = "^2.3.1"
+transformers = "^4.42.4"
+cached-path = "^1.6.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"

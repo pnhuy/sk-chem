@@ -101,3 +101,17 @@ assert len(mols) == len(SAMPLE_SMILES)
 assert all([m is not None for m in mols])
 assert all([m.GetNumConformers() > 0 for m in mols])
 ```
+
+### Molecular featurizing with HuggingFace models
+
+```python
+from sk_chem.features.deep_features.hf_transformer import HFTransformer
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+transformer = HFTransformer(
+	"seyonec/ChemBERTa-zinc-base-v1",
+	device=device
+)
+features = transformer.transform(SAMPLE_SMILES)
+print(features.shape)  # (6, 767)
+```
