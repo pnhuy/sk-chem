@@ -39,28 +39,28 @@ y = df['ESOL predicted log solubility in mols per litre']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 params_grid = {
-	'featurizer': [
-		RdkitFeaturizer(),
-		ModredFeaturizer(),
-		AtomPairCountFingerprint(),
-		RdkitFingerprint(),
-		MorganFingerprint(),
-		TopologicalTorsionFingerprint(),
-	],
-	'forcefield_optimizer': [
-		MMFF(),
-		UFF(),
-	]
+    'featurizer': [
+        RdkitFeaturizer(),
+        ModredFeaturizer(),
+        AtomPairCountFingerprint(),
+        RdkitFingerprint(),
+        MorganFingerprint(),
+        TopologicalTorsionFingerprint(),
+    ],
+    'forcefield_optimizer': [
+        MMFF(),
+        UFF(),
+    ]
 }
 
 pipeline = Pipeline([
-	('molecule_standardizer', RdkitMolStandardizer()),
-	('molecule_transformer', RdkitMoleculeTransformer()),
-	('forcefield_optimizer', MMFF()),
-	('featurizer', RdkitFeaturizer()),
-	('imputer', SimpleImputer(strategy='constant', fill_value=-1)),
-	('scaler', StandardScaler()),
-	('model', RandomForestRegressor(random_state=42)),
+    ('molecule_standardizer', RdkitMolStandardizer()),
+    ('molecule_transformer', RdkitMoleculeTransformer()),
+    ('forcefield_optimizer', MMFF()),
+    ('featurizer', RdkitFeaturizer()),
+    ('imputer', SimpleImputer(strategy='constant', fill_value=-1)),
+    ('scaler', StandardScaler()),
+    ('model', RandomForestRegressor(random_state=42)),
 ])
 
 grid_search = GridSearchCV(pipeline, params_grid, cv=5, n_jobs=-1, verbose=1)
@@ -109,9 +109,31 @@ from sk_chem.features.deep_features.hf_transformer import HFTransformer
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 transformer = HFTransformer(
-	"seyonec/ChemBERTa-zinc-base-v1",
-	device=device
+    "seyonec/ChemBERTa-zinc-base-v1",
+    device=device
 )
 features = transformer.transform(SAMPLE_SMILES)
 print(features.shape)  # (6, 767)
+```
+
+### ElemBert
+Wrapper for the model `elEmBERT - element Embeddings and Bidirectional Encoder Representations from Transformers`.
+
+```python
+from sk_chem.models.elembert import (
+    ElementTokenizer,
+    ElemBertClassifier,
+    ElemBertRegressor,
+)
+
+# X_train: list of smiles strings
+# y_train: one hot encoding of labels
+pipe = Pipeline(
+    [
+        ("tokenizer", ElementTokenizer()),
+        ("classifier", ElemBertClassifier()),
+    ]
+)
+
+pipe.fit(X_train, y_train)
 ```

@@ -14,6 +14,8 @@ pandas = "^2.2.2"
 torch = "^2.3.1"
 transformers = "^4.42.4"
 cached-path = "^1.6.3"
+openbabel-wheel = "^3.1.1.19"
+tensorflow = "^2.17.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
